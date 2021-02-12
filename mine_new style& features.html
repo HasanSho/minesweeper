@@ -1,0 +1,627 @@
+<!doctype HTML>
+<html dir="ltr">
+
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1256">
+<title>Minesweeper</title>
+<style>
+
+
+.dropbtn {
+margin-top:15px;
+  background-color: #3498DB;
+  color: white;
+  padding: 16px;
+  font-size: 16px;
+  border: none;
+  cursor: pointer;
+}
+
+.dropbtn:hover, .dropbtn:focus {
+  background-color: #2980B9;
+}
+
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #f1f1f1;
+  min-width: 160px;
+  overflow: auto;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+}
+
+.dropdown-content a {
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+}
+
+.dropdown a:hover {background-color: #ddd;}
+
+.show {display: block;}
+
+</style>
+
+<script>
+////////////////////// mine sweeper coded by hasan shofan 2019
+
+//---------colors function--------//
+//we have to use RGB insted of hexa or hsl... because when checking in code using if(element.style.background==)
+// javascript convert any color(with gradient only) to RGB.
+function colors(c){
+console.log(c[0])
+tilesStyle="-webkit-linear-gradient(top, rgb("+c[0]+"), rgb("+c[1]+"))"
+}
+
+colorArray=[
+['233, 30, 99','243, 98, 147'], //pink
+['156, 39, 176','159, 77, 176'], //purble
+['33, 150, 243','91, 180, 251'], //blue 
+['76, 175, 80','108, 189, 112'], //green
+['139, 195, 74','168, 208, 74'], //grass
+['0, 0, 0','50, 50, 50'], //black
+['249, 207, 120','253, 213, 153'], //orange
+['255, 193, 7','210, 170, 52'],//gold
+['9, 169, 154','0, 150, 136'],//cyan
+['103, 58, 183','109, 67, 183'],//Move
+['212, 212, 212','202, 202, 202'],//grey
+['206, 0, 0','144, 0, 0'],//red wine
+['210, 105, 30','216, 127, 63'],//chocolate
+['245, 245, 220','220, 220, 193']//beige
+]
+let rc=Math.round(13*Math.random())
+colors(colorArray[rc])
+tileOpenedStyle='-webkit-linear-gradient(top,#ffffff,#f3f3f3)'
+//---------colors function end--------//
+
+
+
+
+//---------- Timer--------//
+S=0 //seconds
+M=0   //Minutes
+H=0
+gType=''
+document.addEventListener('DOMContentLoaded',function(){timerText= document.getElementById("p")})
+claish="Time: "
+
+function Counter() {
+S++
+if(S==60){S=0;M++;}
+if(M==60){M=0;H++}
+if(S<10)loadTimer("0"+S,"0"+M+" : ",H+" : ")
+if(S >= 10)loadTimer(S,M+" : ",H+" : ")
+
+
+}
+function loadTimer(s,m,h){
+timerText.textContent=claish+h+m+s
+}
+//---------- Timer--------//
+
+//--------checking surrounding blocks---------//
+// these funcs checks surrounding tiles of a tile (when clicking on one)
+var nom=0
+function up(E){
+if(mins[E-c]=='M'){nom++};
+
+if(searchzeros==true && tiles[E-c].style.background==tilesStyle){tiles[E-c].style.background= tileOpenedStyle;tiles[E-c].textContent=mins[E-c];if(tiles[E-c].getAttribute('value')==0){spaced.push(E-c);tiles[E-c].textContent='';}}
+
+}
+function down(E){if(mins[E+c]=='M'){nom++};
+if(searchzeros==true && tiles[E+c].style.background==tilesStyle){tiles[E+c].style.background= tileOpenedStyle;tiles[E+c].textContent=mins[E+c];if(tiles[E+c].getAttribute('value')==0){spaced.push(E+c);tiles[E+c].textContent='';}}
+
+}
+function left(E){if(mins[E-1]=='M'){nom++};
+if(searchzeros==true && tiles[E-1].style.background==tilesStyle){tiles[E-1].style.background= tileOpenedStyle;tiles[E-1].textContent=mins[E-1];if(tiles[E-1].getAttribute('value')==0){spaced.push(E-1);tiles[E-1].textContent='';}}
+
+}
+function right(E){if(mins[E+1]=='M'){nom++};
+if(searchzeros==true && tiles[E+1].style.background==tilesStyle){tiles[E+1].style.background= tileOpenedStyle;tiles[E+1].textContent=mins[E+1];if(tiles[E+1].getAttribute('value')==0){spaced.push(E+1);tiles[E+1].textContent='';}}
+
+}
+function ru(E){if(mins[E-c+1]=='M'){nom++};
+if(searchzeros==true && tiles[E-c+1].style.background==tilesStyle){tiles[E-c+1].style.background= tileOpenedStyle;tiles[E-c+1].textContent=mins[E-c+1];if(tiles[E-c+1].getAttribute('value')==0){spaced.push(E-c+1);tiles[E-c+1].textContent='';}}
+
+}
+function rd(E){if(mins[E+c+1]=='M'){nom++};
+if(searchzeros==true && tiles[E+c+1].style.background==tilesStyle){tiles[E+c+1].style.background= tileOpenedStyle;tiles[E+c+1].textContent=mins[E+c+1];if(tiles[E+c+1].getAttribute('value')==0){spaced.push(E+c+1);tiles[E+c+1].textContent='';}}
+
+}
+function lu(E){if(mins[E-c-1]=='M'){nom++};
+if(searchzeros==true && tiles[E-c-1].style.background==tilesStyle){tiles[E-c-1].style.background= tileOpenedStyle;tiles[E-c-1].textContent=mins[E-c-1];if(tiles[E-c-1].getAttribute('value')==0){spaced.push(E-c-1);tiles[E-c-1].textContent='';}}
+
+}
+function ld(E){if(mins[E+c-1]=='M'){nom++};
+if(searchzeros==true && tiles[E+c-1].style.background==tilesStyle){tiles[E+c-1].style.background= tileOpenedStyle;tiles[E+c-1].textContent=mins[E+c-1];if(tiles[E+c-1].getAttribute('value')==0){spaced.push(E+c-1);tiles[E+c-1].textContent='';}}
+
+}
+//--------checking surrounding blocks---------//
+
+
+//--------new game function----------//
+//new mines array.. and lunching the other functions 
+var mins=new Array()
+inter=''
+newGame=1
+function mineLoading(){
+	newGame=0
+if(mine<=Math.round(r*c/4) && r<51 && c<51&& r>9 && c>9){ //playing condition
+document.querySelector('.clock').style.display='block'
+searchzeros=false
+ mins=new Array(r*c)
+ //easy 100 cell, array of element [0 99]
+ //rand r=10 * c=10  [0 100]
+ // rand should be [0 99] as array of elements
+for(i=0;i<mine;i++){
+rand=Math.round(r*c*Math.random()-1)
+if(mins[rand]!='M'){mins[rand]='M';}
+else{i--}
+}
+loadingnumbers();table();
+
+
+if(inter)clearInterval(inter)
+S=0 //seconds
+M=0   //Minutes
+H=0
+inter=setInterval('Counter()',1000)
+
+document.querySelector('#custom').style.display='none'
+}
+else{alert('out of range')}
+}
+//--------new game function----------//
+
+//--------loading the values into table----------//
+
+function loadingnumbers(){
+for(var i=0;i<mins.length;i++){
+if(searchzeros==true){i=Number(spaced[0]);spaced.shift();} 
+if(mins[i]!='M'){
+if(i==0){rd(i);right(i);down(i);mins[i]=nom; }//first element
+else if(i==c-1){left(i);ld(i);down(i);;mins[i]=nom;} // right upper corner
+else if(i==(r-1)*c){up(i);ru(i);right(i);mins[i]=nom;}// left bottom corner
+else if(i==(r*c)-1){up(i);lu(i);left(i);mins[i]=nom;} // last element
+else if(i>0 && i<(c-1)){right(i);left(i);down(i);rd(i);ld(i);mins[i]=nom;} // upper raw
+else if(i%c==0){up(i);right(i);down(i);ru(i);rd(i);mins[i]=nom}			// left raw
+else if((i+1)%c==0){up(i);left(i);down(i);lu(i);ld(i);mins[i]=nom}	//right raw
+else if(i>(r-1)*c && i<r*c-1){up(i);right(i);left(i);ru(i);lu(i);mins[i]=nom}//bottom raw
+else{right(i);left(i);up(i);down(i);lu(i);ld(i);ru(i);rd(i);mins[i]=nom}
+}
+nom=0
+
+if(searchzeros==true){i=100000} 
+
+}
+if(spaced[0]!=null){loadingnumbers()}
+}
+//--------loading the values into table----------//
+
+
+//--------creating the table----------//
+
+function table(){
+var count=-1
+main.remove();
+var tab=document.createElement('table')
+tab.setAttribute('id', 'main')
+tableC.appendChild(tab)
+
+for(i=0;i<r;i++){
+tr=document.createElement('tr')
+
+main.appendChild(tr)
+
+for(j=0;j<c;j++){
+count++
+
+td=document.createElement('td')
+td.setAttribute('value',mins[count])
+td.setAttribute('Id',count)
+
+//if(mins[count]!=0 && mins[count]!='M'){td.textContent=mins[count]}
+td.style.background=tilesStyle;
+
+
+//td.textContent=count
+
+
+main.lastElementChild.appendChild(td)
+}
+tiles=main.querySelectorAll('td')
+}
+	main.addEventListener("click",cd)
+
+	main.addEventListener("contextmenu",dvd,false) // right click
+
+}
+//--------creating the table----------//
+
+var spaced=[]
+var tileindex=0
+
+//--------Mouse Events----------//
+
+//--------Mouse Left Click----------//
+ function cd(eve){
+ var evtg=eve.target
+  if (evtg.nodeName === 'TD' && evtg.style.background!='red'){
+		   if (evtg.getAttributeNode('value').value==0  && evtg.style.background==tilesStyle) { //no mines near
+		   eve.target.style.background= tileOpenedStyle;
+		   spaced[0]=  evtg.id
+		   searchzeros=true
+		   loadingnumbers()
+		   }
+		   else if( evtg.getAttributeNode('value').value=='M'){ // mine clicked Game over
+		   
+			 
+			for(var i=0;i<mins.length;i++){			 // loop over the board. (option 3 not neccecarry but cool) 
+if(tiles[i].style.background=='red' && mins[i]!='M'){ //1. BGcolor=red && not mine ==> X wrong
+tiles[i].textContent='X'}
+if(tiles[i].style.background==tilesStyle && mins[i]=='M'){//2. BGcolor=black &&  mine ==> BG Image =red mine
+tiles[i].style.backgroundImage="url('min_red.png')";}
+if(tiles[i].style.background=='red' && mins[i]=='M'){ //3. BGcolor=red &&  mine ==> BG Image =black and white mine
+tiles[i].style.backgroundImage="url('min.png')";}
+
+
+
+		tiles[i].style.backgroundSize="cover"; // this is important for all images
+			 
+			 
+			 }
+		     alert('Game Over')
+		   
+		   }
+		   else if(evtg.getAttributeNode('value').value!=0){ // number clicked
+				  evtg.style.background= tileOpenedStyle;
+				  evtg.textContent=mins[evtg.id]
+
+		   }
+		   
+		   
+		   }
+		   for(let i=0;i<mins.length;i++){//checking if you win or not
+			if(mins[i]=='M' && tiles[i].style.backgroundSize=="cover"){break;}
+			if(mins[i]!='M' && tiles[i].style.background!="-webkit-linear-gradient(top, rgb(255, 255, 255), rgb(243, 243, 243))"){ break;}						
+			if(i==mins.length-1 && newGame==0){
+
+			alert(tiles[i].style.background)
+			alert(tilesStyle)
+			alert('You Win')
+			newGame=1
+			getSetScores()
+			}
+			
+		   }
+		   
+		   }
+		   
+		   
+//--------Mouse right Click----------//
+function dvd(eve){
+
+		   if (eve.target.nodeName == 'TD') {
+		   		   eve.preventDefault();
+				   if(  eve.target.style.background==tilesStyle){eve.target.style.background="red";}
+				   else	if(  eve.target.style.background=="red"){ eve.target.style.background="orange"}
+				   else if(  eve.target.style.background=="orange"){ eve.target.style.background=tilesStyle}
+
+return false
+
+}
+}
+
+
+// getting and setting scors to localStorage in case of winning
+let gameKey=''
+let usersArr=[]
+function getSetScores(){
+if(gType!=''){ //gType='' means custom raws/columns which is not ranked
+			// we want to save results in 4 array
+			if(gType==0)gameKey='game_easy'
+			if(gType==1)gameKey='game_intermediate'
+			if(gType==2)gameKey='game_hard'
+			if(gType==3)gameKey='game_extreme'
+
+			let time_string=timerText.textContent.replace('Time: ','')
+			let timeInSec=H*60*60+M*60+S
+			let name=prompt('User Name','')
+			
+			if(!localStorage.getItem(gameKey)){ //first time winning ever
+			oldUsers=name+","+time_string+","+timeInSec;
+			localStorage.setItem(gameKey,oldUsers)}
+			
+			else{ //NOT first time
+			oldUsers=localStorage.getItem(gameKey)
+			oldUsers+="SpLiT"+name+","+time_string+","+timeInSec
+			localStorage.setItem(gameKey,oldUsers)
+			}
+			
+			//converting to an array
+			usersArr=oldUsers.split('SpLiT')
+			
+			// show results
+			playersScore(usersArr,gameKey)
+			}
+}
+
+
+
+
+//////////////// show rank table only
+function showRank(gameKey){
+try{
+	usersArr=localStorage.getItem(gameKey).split('SpLiT')
+	playersScore(usersArr,gameKey)
+	}
+			catch(e){alert('Empty')}
+}
+
+
+
+
+/////////// reset results data
+function resetData(){
+localStorage.setItem('game_easy','')
+localStorage.setItem('game_intermediate','')
+localStorage.setItem('game_hard','')
+localStorage.setItem('game_extreme','')
+alert('Done!')
+}
+
+
+
+
+//////////// processing the scores and sort them before loading them into the table
+function playersScore(usersArr,gameKey){
+gtView.innerText=gameKey.replace('game_','').toUpperCase()
+let playersTable=players.children[2].tBodies[0]
+playersTable.innerHTML=''
+
+let rank=[]
+for(let i=0;i<usersArr.length;i++){// get ranked array from localstorage for exa: [3,5,7,1]
+rank[i]=usersArr[i].split(',')[2] 
+}
+// we need to arrange it and keep the indexes in mind
+rankIndexArr=[]
+for(let i=0;i<rank.length;i++){
+let minRank=Math.min(...rank) //find minimum number
+
+rankIndex=rank.findIndex(function(n){return n==minRank}) // save the index of this number
+rankIndexArr.push(rankIndex) // push the index in array
+rank[rankIndex]=999999 // make the number big enough(999999 sec=11.57 days!!) to not be important in next loop
+}
+// now rankIndexArr=[3,0,1,2] : 3 is index of 1, 0 is index of 3.... etc
+// means the number one should be in the first raw so now we know it's index (3) so we put it first
+//the number three should be in the second raw so now we know it's index (0) so we put it secondly. etc
+// now we put the players in table accourding to their rank
+
+for(let i=0;i<usersArr.length;i++){ // creating the score table
+let tr=document.createElement('tr')
+let td1=document.createElement('td')
+td1.innerText=usersArr[rankIndexArr[i]].split(',')[0]// user name
+let td2=document.createElement('td')
+td2.innerText=usersArr[rankIndexArr[i]].split(',')[1]// user time
+let td3=document.createElement('td')				// user Rank
+td3.innerText=i+1// user rank : usersArr[rankIndexArr[i]].split(',')[2]
+tr.appendChild(td3);tr.appendChild(td1);tr.appendChild(td2);
+players.children[2].tBodies[0].appendChild(tr)
+
+}
+players.style.display='block'
+}
+
+//resize the tiles [table] size
+function resize(){
+tw=tiles[0].style.width
+if(tw=='' || tw=='25px')resizeHelper(30);
+else if(tw=='30px')resizeHelper(40);
+else resizeHelper(25);
+}
+function resizeHelper(val){ //auxuliary function
+for(let i=0;i<tiles.length;i++){
+tiles[i].style.width=val+'px'
+tiles[i].style.height=val+'px'
+tiles[i].style.fontSize=val/2+'pt'
+}
+
+}
+</script>
+</head>
+
+<body bgcolor="#F7F5FC" >
+
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family:cursive;
+}
+#main > tr > td{
+
+    width: 25px;
+    height: 25px;
+	box-shadow: 1px 1px 1px 0px #cbcbcb;
+    border: 0px;
+    border-radius: 2px;
+	   /* background-image: -webkit-linear-gradient(top,#f8f8f8,#f1f1f1);*/
+
+}
+/*
+td:hover{   
+    box-shadow: 0 0 6px 4px #00ff00de;
+ transition:0.1s;
+
+}
+*/
+#custom{
+    display: none;
+    background-color: #8bc34aed;
+    border-radius: 3px;
+    margin-left: 30%;
+    position: fixed;
+    padding: 30px;
+    box-shadow: 0 0 20px 1px #8bc34ad6;
+}
+p{margin:10px;font-size:16pt;}
+.clock{
+display:none;
+    position: fixed;
+    right: 10px;
+    top: 10px;
+    background-color: #cddc39f2;
+    width: auto;
+    box-shadow: 3px 1px 20px 1px #cddc39ed;
+    border-radius: 10px;
+    margin: 10px;
+    padding: 10px 10px;
+
+}
+
+
+.clock img{
+    width: 70px;
+    padding-left: 0px;
+    padding-right: 0px;
+    margin-left: 25px;
+	}
+
+form{
+    background-color: #3498db7a;
+    box-shadow: 2px 3px 5px 0px #969696e3;
+    border-radius: 10px;
+    margin: 10px;
+    padding: 20px 30px;
+    width: fit-content;
+
+}
+
+@media screen and (max-width: 500px){
+form{width:50%;}
+}
+#players{
+
+    position: absolute;
+    top: 20%;
+    left: 30%;
+    border: 1px solid #d2d0d0;
+    box-shadow: 1px 1px 9px #afafafcc;
+    border-radius: 5px;
+    min-width: 400px;
+    min-height: 400px;
+    background-image: -webkit-linear-gradient(top,#72b6ec,#f9f9f930);
+	display:none;
+}
+
+.setting{
+	display: flex;
+    justify-content: space-between;
+    align-items: center;
+	margin: 15px;
+}
+.show-score{
+cursor:pointer;
+}
+</style>
+<div id=players>
+<p style="    text-align: center;    padding: 10px;"><span id='gtView'></span></p>
+<div style="
+    position: absolute;
+    right: 16px;
+    top: 16px;
+    cursor: pointer;
+" onclick='players.style.display="none"'>X</div>
+<table id='slkef' style="min-width: 400px;">
+<thead><tr>
+<td>Rank</td>
+<td>Name</td>
+<td>Time</td>
+</tr>
+
+
+</thead>
+<tbody></tbody>
+
+
+</table>
+
+</div>
+<div  id=custom >
+<p>Raws (range[10-50])</p><div> <input id=ra value=20></div>
+<p>columns (range[10-50])</p><div><input id=col value=20></div>
+
+<div class="dropdown">
+  <button onclick="myFunction()" class="dropbtn">Difficulty</button>
+    <button onclick="document.querySelector('#custom').style.display='none'" class="dropbtn">Cancel</button>
+
+  <div id="myDropdown" class="dropdown-content" onmouseover="r=Number(ra.value);c=Number(col.value)">
+    <a href="#home" onclick="mine=Math.round(r*c/10);mineLoading();gType=''">Easy</a>
+    <a href="#about" onclick="mine=Math.round(r*c/7);mineLoading();gType=''">Intermediate</a>
+    <a href="#contact" onclick="mine=Math.round(r*c/5);mineLoading();gType=''">Hard</a>
+	<a href="#contact" onclick="mine=Math.round(r*c/4);mineLoading();gType=''">Extreme</a>
+
+  </div>
+</div>
+
+
+
+
+
+
+</div>
+<div class='clock'><img src='clock.png'><p style="font-size:15pt" id=p></p></div>
+
+<form>
+<p>Typical</p>
+<div class='setting'><label><input name=p type='radio' onclick="r=10;c=10;mine=10;mineLoading();gType='0'" > Easy (10 mines 10%)</label><img class='show-score' src='menu.png' onclick='showRank("game_easy")'></div>
+<div class='setting'><label><input name=p type='radio' onclick="r=16;c=16;mine=40;mineLoading();gType='1'" > Intermediate (40 mines 15%)</label><img class='show-score' src='menu.png' onclick="showRank('game_intermediate')"></div>
+<div class='setting'><label><input name=p type='radio' onclick="r=16;c=30;mine=99;mineLoading();gType='2'" > Hard (99 mines 20%)</label><img class='show-score' src='menu.png' onclick="showRank('game_hard')"></div>
+<div class='setting'><label><input name=p type='radio' onclick="r=30;c=30;mine=225;mineLoading();gType='3'" > Extreme (225 mines 25%)</label><img class='show-score' src='menu.png' onclick="showRank('game_extreme')"></div>
+
+
+<input name=p class='dropbtn' type='button' value='custom' onclick="document.querySelector('#custom').style.display='block'" >
+<input  class='dropbtn' type='button' value='Reset Data' onclick="resetData()" >
+<input  class='dropbtn' type='button' value='Size' onclick="resize()" >
+</form>
+<div id="tableC" style="text-align: center;width: fit-content;margin: 30px auto;">
+<table id=main></table>
+</div>
+
+
+
+<script>
+// this part of code is from W3schools for dropdown button
+/* When the user clicks on the button, 
+toggle between hiding and showing the dropdown content */
+function myFunction() {
+  document.getElementById("myDropdown").classList.toggle("show");
+}
+
+// Close the dropdown if the user clicks outside of it
+window.onclick = function(event) {
+  if (!event.target.matches('.dropbtn')) {
+    var dropdowns = document.getElementsByClassName("dropdown-content");
+    var i;
+    for (i = 0; i < dropdowns.length; i++) {
+      var openDropdown = dropdowns[i];
+      if (openDropdown.classList.contains('show')) {
+        openDropdown.classList.remove('show');
+      }
+    }
+  }
+}
+</script>
+
+
+</body>
+</html>
